@@ -256,7 +256,7 @@ buttons.append(button_view2)  # adding this button to the buttons group
 
 button_view3 = Button(x=TAPS_WIDTH*2, y=0,
                       width=TAPS_WIDTH, height=TAPS_HEIGHT,
-                      label="Gamma", label_font=font4, label_color=0xff7e00,
+                      label="λ", label_font=font4, label_color=0xff7e00,
                       fill_color=0x5c5b5c, outline_color=0x767676,
                       selected_fill=0x1a1a1a, selected_outline=0x2e2e2e,
                       selected_label=0x525252)
