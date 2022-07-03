@@ -32,7 +32,7 @@ t = rtc.datetime
 days = ("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
 
 # Change Date and Time here
-if False:  # change to True if you want to set the time
+if False:  # change to True if you want to set the time. Once you have your time set, if your RTC has a battery, you then change to False.
     # year, mon, date, hour, min, sec, wday, yday, isdst
     t = time.struct_time((2022, 5, 20, 15, 42, 00, 6, -1, -1))
     # you must set year, mon, date, hour, min, sec and weekday
@@ -41,7 +41,6 @@ if False:  # change to True if you want to set the time
 
 # Turn on various GPS data
 gps.send_command(b'PMTK314,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0')
-
 # Set update rate to once a second (1hz)
 gps.send_command(b"PMTK220,20000")
 
@@ -347,17 +346,10 @@ switch_state = 0
 button_switch.label = "OFF"
 button_switch.selected = True
 
-#text_box(feed2_label, TABS_Y, '', 18)
-
 text_box(sensors_label, TABS_Y-20,
          "", 28)
 
 board.DISPLAY.show(splash)
-#ltr = adafruit_ltr390.LTR390(i2c_bus)
-#gps = adafruit_gps.GPS_GtopI2C(i2c_bus)
-#rtc = adafruit_ds3231.DS3231(i2c_bus)
-#sensor = adafruit_lidarlite.LIDARLite(i2c_bus)
-#t = rtc.datetime
 
 # ------------- Code Loop ------------- #
 while True:
@@ -366,7 +358,7 @@ while True:
     
     # '\n' is your Y axis (Enter button) and the spaces are used for the X axis.
     if view_live == 1: #GPS and Date/Time
-        sensor_data1.text = '{} {}/{}/{}  {}:{:02}:{:02}\nρθφ\nLat: {}\nLong: {}      Alt: {}'.format(days[int(t.tm_wday)], t.tm_mon, t.tm_mday, t.tm_year,t.tm_hour, t.tm_min, t.tm_sec, (gps.latitude), (gps.longitude), (gps.altitude_m))
+        sensor_data1.text = '{} {}/{}/{}  {}:{:02}:{:02}\nρ θ φ\nLat: {}\nLong: {}      Alt: {}'.format(days[int(t.tm_wday)], t.tm_mon, t.tm_mday, t.tm_year,t.tm_hour, t.tm_min, t.tm_sec, (gps.latitude), (gps.longitude), (gps.altitude_m))
 
     if gps is not None:
         sensor_data.text = 'UV Index\n{}\n                   UV I\n                   {}'.format(ltr.uvi, ltr.lux)
@@ -377,14 +369,14 @@ while True:
 
     if sensor is not None:
         sensor_data.text = 'UV Index\n{}\n                   UV I\n                   {}'.format(ltr.uvi, ltr.lux)
-        sensor_data1.text = '{} {}/{}/{}  {}:{:02}:{:02}\nρθφ\nLat: {}\nLong: {}      Alt: {}'.format(days[int(t.tm_wday)], t.tm_mon, t.tm_mday, t.tm_year,t.tm_hour, t.tm_min, t.tm_sec, (gps.latitude), (gps.longitude), (gps.altitude_m))
+        sensor_data1.text = '{} {}/{}/{}  {}:{:02}:{:02}\nρ θ φ\nLat: {}\nLong: {}      Alt: {}'.format(days[int(t.tm_wday)], t.tm_mon, t.tm_mday, t.tm_year,t.tm_hour, t.tm_min, t.tm_sec, (gps.latitude), (gps.longitude), (gps.altitude_m))
 
     if view_live == 3: #UV Index/LUX
         sensor_data.text = 'UV Index\n{}\n                   UV I\n                   {}'.format(ltr.uvi, ltr.lux)
 
     if ltr is not None:
         sensor_data2.text = 'OBJ DISTANCE\n\n                   {}m'.format(sensor.distance/100)
-        sensor_data1.text = '{} {}/{}/{}  {}:{:02}:{:02}\nρθφ\nLat: {}\nLong: {}      Alt: {}'.format(days[int(t.tm_wday)], t.tm_mon, t.tm_mday, t.tm_year,t.tm_hour, t.tm_min, t.tm_sec, (gps.latitude), (gps.longitude), (gps.altitude_m))
+        sensor_data1.text = '{} {}/{}/{}  {}:{:02}:{:02}\nρ θ φ\nLat: {}\nLong: {}      Alt: {}'.format(days[int(t.tm_wday)], t.tm_mon, t.tm_mday, t.tm_year,t.tm_hour, t.tm_min, t.tm_sec, (gps.latitude), (gps.longitude), (gps.altitude_m))
 
 
     # ------------- Handle Button Press Detection  ------------- #
@@ -396,21 +388,18 @@ while True:
                 if i == 0 and view_live != 1:  # only if view1 is visable
                     pyportal.play_file(soundTab)
                     switch_view(1)
-                    #sensor_data1.text = '\nρθφ\nLat: {}\nLong: {}      Alt: {}'.format((gps.latitude), (gps.longitude), (gps.altitude_m))
                     pixels.fill((0, 255, 0))
                     while ts.touch_point:
                         pass
                 if i == 1 and view_live != 2:  # only if view2 is visable
                     pyportal.play_file(soundTab)
                     switch_view(2)
-                    #sensor_data2.text = 'OBJ DISTANCE\n\n                   {}m'.format(LIDAR_data.distance/100)
                     pixels.fill((255, 0, 0))
                     while ts.touch_point:
                         pass
                 if i == 2 and view_live != 3:  # only if view3 is visable
                     pyportal.play_file(soundTab)
                     switch_view(3)
-                    #sensor_data.text = 'UV Index\n{}\n                   UV I\n                   {}'.format(ltr.uvi, ltr.lux)
                     pixels.fill((0, 0, 255))
                     while ts.touch_point:
                         pass
