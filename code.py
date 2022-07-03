@@ -21,37 +21,34 @@ sys.path.append(cwd)
 
 # ------------- Inputs and Outputs Setup ------------- #
 i2c_bus = busio.I2C(board.SCL, board.SDA)
-ltr = adafruit_ltr390.LTR390(i2c_bus, address=0x53)
-gps = adafruit_gps.GPS_GtopI2C(i2c_bus, address=0x10)
+ltr = adafruit_ltr390.LTR390(i2c_bus)
+gps = adafruit_gps.GPS_GtopI2C(i2c_bus)
 rtc = adafruit_ds3231.DS3231(i2c_bus)
+sensor = adafruit_lidarlite.LIDARLite(i2c_bus)
+t = rtc.datetime
 
 #RTC Clock
 # Lookup table for names of days (nicer printing).
 days = ("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
 
-# pylint: disable-msg=using-constant-test
-if False:  # change to True if you want to set the time!
+# Change Date and Time here
+if False:  # change to True if you want to set the time
     # year, mon, date, hour, min, sec, wday, yday, isdst
     t = time.struct_time((2022, 5, 20, 15, 42, 00, 6, -1, -1))
     # you must set year, mon, date, hour, min, sec and weekday
     rtc.datetime = t
     print()
-# pylint: enable-msg=using-constant-test
 
-# Turn on just minimum info (RMC only, location):
-gps.send_command(b"PMTK314,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0")
+# Turn on various GPS data
+gps.send_command(b'PMTK314,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0')
 
-# Set update rate to once a second (1hz) which is what you typically want.
+# Set update rate to once a second (1hz)
 gps.send_command(b"PMTK220,20000")
-
-# Main loop runs forever printing data as it comes in
-#timestamp = time.monotonic()
 
 # Neopixels
 pixel_pin = board.D3
 num_pixels = 1
 ORDER = neopixel.RGB
-
 pixels = neopixel.NeoPixel(
     pixel_pin, num_pixels, brightness=1.0, auto_write=True, pixel_order=ORDER
 )
@@ -75,14 +72,11 @@ pyportal = PyPortal()
 display = board.DISPLAY
 display.rotation = 0
 
-# Backlight function
-# Value between 0 and 1 where 0 is OFF, 0.5 is 50% and 1 is 100% brightness.
+# Backlight function Value between 0 and 1 where 0 is OFF, 0.5 is 50% and 1 is 100% brightness.
 def set_backlight(val):
     val = max(0, min(1.0, val))
     board.DISPLAY.auto_brightness = False
     board.DISPLAY.brightness = val
-
-# Set the Backlight
 set_backlight(0.5)
 
 # Touchscreen setup
@@ -359,47 +353,38 @@ text_box(sensors_label, TABS_Y-20,
          "", 28)
 
 board.DISPLAY.show(splash)
+#ltr = adafruit_ltr390.LTR390(i2c_bus)
+#gps = adafruit_gps.GPS_GtopI2C(i2c_bus)
+#rtc = adafruit_ds3231.DS3231(i2c_bus)
+#sensor = adafruit_lidarlite.LIDARLite(i2c_bus)
+#t = rtc.datetime
 
 # ------------- Code Loop ------------- #
 while True:
     touch = ts.touch_point
     gps.update()
     
-    if view_live == 1:
-        data = gps.read(32)
-        t = rtc.datetime
-        sensor = adafruit_lidarlite.LIDARLite(i2c_bus)
+    # '\n' is your Y axis (Enter button) and the spaces are used for the X axis.
+    if view_live == 1: #GPS and Date/Time
         sensor_data1.text = '{} {}/{}/{}  {}:{:02}:{:02}\nρθφ\nLat: {}\nLong: {}      Alt: {}'.format(days[int(t.tm_wday)], t.tm_mon, t.tm_mday, t.tm_year,t.tm_hour, t.tm_min, t.tm_sec, (gps.latitude), (gps.longitude), (gps.altitude_m))
 
-    if data is not None:
-        data_string = "".join([chr(b) for b in data])
-        # '\n' is your Y axis (Enter button) and the spaces are used for the X axis.
-    sensor_data.text = 'UV Index\n{}\n                   UV I\n                   {}'.format(ltr.uvi, ltr.lux)
-    sensor_data2.text = 'OBJ DISTANCE\n\n                   {}m'.format(sensor.distance/100)
+    if gps is not None:
+        sensor_data.text = 'UV Index\n{}\n                   UV I\n                   {}'.format(ltr.uvi, ltr.lux)
+        sensor_data2.text = 'OBJ DISTANCE\n\n                   {}m'.format(sensor.distance/100)
     
-    if view_live == 2:
-        data = gps.read(32)
-        t = rtc.datetime
-        sensor = adafruit_lidarlite.LIDARLite(i2c_bus)
+    if view_live == 2: #Distance - LIDAR
         sensor_data2.text = 'OBJ DISTANCE\n\n                   {}m'.format(sensor.distance/100)
 
     if sensor is not None:
-        data_string = "".join([chr(b) for b in data])
-        # '\n' is your Y axis (Enter button) and the spaces are used for the X axis.
-    sensor_data.text = 'UV Index\n{}\n                   UV I\n                   {}'.format(ltr.uvi, ltr.lux)
-    sensor_data1.text = '{} {}/{}/{}  {}:{:02}:{:02}\nρθφ\nLat: {}\nLong: {}      Alt: {}'.format(days[int(t.tm_wday)], t.tm_mon, t.tm_mday, t.tm_year,t.tm_hour, t.tm_min, t.tm_sec, (gps.latitude), (gps.longitude), (gps.altitude_m))
+        sensor_data.text = 'UV Index\n{}\n                   UV I\n                   {}'.format(ltr.uvi, ltr.lux)
+        sensor_data1.text = '{} {}/{}/{}  {}:{:02}:{:02}\nρθφ\nLat: {}\nLong: {}      Alt: {}'.format(days[int(t.tm_wday)], t.tm_mon, t.tm_mday, t.tm_year,t.tm_hour, t.tm_min, t.tm_sec, (gps.latitude), (gps.longitude), (gps.altitude_m))
 
-    if view_live == 3:
-        data = gps.read(32)
-        t = rtc.datetime
-        sensor = adafruit_lidarlite.LIDARLite(i2c_bus)
+    if view_live == 3: #UV Index/LUX
         sensor_data.text = 'UV Index\n{}\n                   UV I\n                   {}'.format(ltr.uvi, ltr.lux)
 
-    if data is not None:
-        data_string = "".join([chr(b) for b in data])
-        # '\n' is your Y axis (Enter button) and the spaces are used for the X axis.
-    sensor_data2.text = 'OBJ DISTANCE\n\n                   {}m'.format(sensor.distance/100)
-    sensor_data1.text = '{} {}/{}/{}  {}:{:02}:{:02}\nρθφ\nLat: {}\nLong: {}      Alt: {}'.format(days[int(t.tm_wday)], t.tm_mon, t.tm_mday, t.tm_year,t.tm_hour, t.tm_min, t.tm_sec, (gps.latitude), (gps.longitude), (gps.altitude_m))
+    if ltr is not None:
+        sensor_data2.text = 'OBJ DISTANCE\n\n                   {}m'.format(sensor.distance/100)
+        sensor_data1.text = '{} {}/{}/{}  {}:{:02}:{:02}\nρθφ\nLat: {}\nLong: {}      Alt: {}'.format(days[int(t.tm_wday)], t.tm_mon, t.tm_mday, t.tm_year,t.tm_hour, t.tm_min, t.tm_sec, (gps.latitude), (gps.longitude), (gps.altitude_m))
 
 
     # ------------- Handle Button Press Detection  ------------- #
