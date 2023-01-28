@@ -13,8 +13,6 @@ import adafruit_touchscreen
 from adafruit_pyportal import PyPortal
 import adafruit_lidarlite
 import adafruit_ltr390
-import adafruit_gps
-import adafruit_ds3231
 
 cwd = ("/"+__file__).rsplit('/', 1)[0] # the current working directory (where this file is)
 sys.path.append(cwd)
@@ -22,27 +20,7 @@ sys.path.append(cwd)
 # ------------- Inputs and Outputs Setup ------------- #
 i2c_bus = busio.I2C(board.SCL, board.SDA)
 ltr = adafruit_ltr390.LTR390(i2c_bus)
-gps = adafruit_gps.GPS_GtopI2C(i2c_bus)
-rtc = adafruit_ds3231.DS3231(i2c_bus)
 sensor = adafruit_lidarlite.LIDARLite(i2c_bus)
-t = rtc.datetime
-
-#RTC Clock
-# Lookup table for names of days (nicer printing).
-days = ("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
-
-# Change Date and Time here
-if False:  # change to True if you want to set the time. Once you have your time set, if your RTC has a battery, you then change to False.
-    # year, mon, date, hour, min, sec, wday, yday, isdst
-    t = time.struct_time((2022, 5, 20, 15, 42, 00, 6, -1, -1))
-    # you must set year, mon, date, hour, min, sec and weekday
-    rtc.datetime = t
-    print()
-
-# Turn on various GPS data
-gps.send_command(b'PMTK314,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0')
-# Set update rate to once a second (1hz)
-gps.send_command(b"PMTK220,20000")
 
 # Neopixels
 pixel_pin = board.D3
@@ -121,7 +99,7 @@ icon_group = displayio.Group()
 icon_group.x = 0
 icon_group.y = 40
 icon_group.scale = 1
-view2.append(icon_group)
+view1.append(icon_group)
 
 # This will handel switching Images and Icons
 def set_image(group, filename):
@@ -162,15 +140,11 @@ TABS_X = 5
 TABS_Y = 50
 
 # Text Label Objects
-sensors_label1 = Label(font1, text="", color=0x03AD31)
-sensors_label1.x = TABS_X+100
-sensors_label1.y = TABS_Y
-view1.append(sensors_label1)
-
-sensor_data1 = Label(font1, text="", color=0x03AD31)
-sensor_data1.x = TABS_X+15
-sensor_data1.y = 70
-view1.append(sensor_data1)
+feed1_label = Label(font3, text="\n                        Star class: G     Planet class: M \n         3rd planet of 8    Diameter: 12,725 km \nRotation: 24 hours      Orbital: 365.25 days\n                                               Ecosystem; various\n                                               Life forms: various \n                                            Natural satellites: 1", color=0xE39300)
+set_image(icon_group, "/images/backgraph-planet.bmp")
+feed1_label.x = TABS_X+25
+feed1_label.y = TABS_Y
+view1.append(feed1_label)
 
 sensors_label2 = Label(font4, text="", color=0x03AD31)
 sensors_label2.x = TABS_X+100
@@ -350,36 +324,26 @@ text_box(sensors_label, TABS_Y-20,
          "", 28)
 
 board.DISPLAY.show(splash)
+last_print = time.monotonic()
 
 # ------------- Code Loop ------------- #
 while True:
     touch = ts.touch_point
-    gps.update()
-    
-    # '\n' is your Y axis (Enter button) and the spaces are used for the X axis.
-    if view_live == 1: #GPS and Date/Time
-        sensor_data1.text = '{} {}/{}/{}  {}:{:02}:{:02}\nρ θ φ\nLat: {}\nLong: {}      Alt: {}'.format(days[int(t.tm_wday)], t.tm_mon, t.tm_mday, t.tm_year,t.tm_hour, t.tm_min, t.tm_sec, (gps.latitude), (gps.longitude), (gps.altitude_m))
 
-    if gps is not None:
-        sensor_data.text = 'UV Index\n{}\n                   UV I\n                   {}'.format(ltr.uvi, ltr.lux)
-        sensor_data2.text = 'OBJ DISTANCE\n\n                   {}m'.format(sensor.distance/100)
-    
     if view_live == 2: #Distance - LIDAR
         sensor_data2.text = 'OBJ DISTANCE\n\n                   {}m'.format(sensor.distance/100)
 
     if sensor is not None:
         sensor_data.text = 'UV Index\n{}\n                   UV I\n                   {}'.format(ltr.uvi, ltr.lux)
-        sensor_data1.text = '{} {}/{}/{}  {}:{:02}:{:02}\nρ θ φ\nLat: {}\nLong: {}      Alt: {}'.format(days[int(t.tm_wday)], t.tm_mon, t.tm_mday, t.tm_year,t.tm_hour, t.tm_min, t.tm_sec, (gps.latitude), (gps.longitude), (gps.altitude_m))
 
     if view_live == 3: #UV Index/LUX
         sensor_data.text = 'UV Index\n{}\n                   UV I\n                   {}'.format(ltr.uvi, ltr.lux)
 
     if ltr is not None:
         sensor_data2.text = 'OBJ DISTANCE\n\n                   {}m'.format(sensor.distance/100)
-        sensor_data1.text = '{} {}/{}/{}  {}:{:02}:{:02}\nρ θ φ\nLat: {}\nLong: {}      Alt: {}'.format(days[int(t.tm_wday)], t.tm_mon, t.tm_mday, t.tm_year,t.tm_hour, t.tm_min, t.tm_sec, (gps.latitude), (gps.longitude), (gps.altitude_m))
 
-
-    # ------------- Handle Button Press Detection  ------------- #
+        
+# ------------- Handle Button Press Detection  ------------- #
     if touch:  # Only do this if the screen is touched
         # loop with buttons using enumerate() to number each button group as i
         for i, b in enumerate(buttons):
