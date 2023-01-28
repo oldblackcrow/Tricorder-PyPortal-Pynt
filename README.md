@@ -10,3 +10,5 @@ MAKE SURE you create appropriate directories on your PyPortal - bmp files go in 
 The ONLY sound and image files that go in the root directory are pyportal_startup.bmp and pyportal_startup.wav
 
 For you physics geeks, I've included in the Fonts directory a version of BebasNeue-Regular-26.bdf with Greek letters (BebasNeue-greek-Regular-26.bdf) and just a Greek Font (Greek03-Regular-25.bdf). You can make this any font name you want within the code and use it for the main body text. The Greek03-Regular-25.bdf is big enough for the top buttons.
+
+If you have issues with connecting to the GPS satelites (Fix Quality: 0), just use the forked version with GPS removed. On that fork, there is a bitmap file you need to add (backgraph-planet.bmp), but other than that, it's a duplicate of this repository. 
