@@ -3,7 +3,7 @@ AdafruitIO is no longer required and added new sensors.
 GPS removed due to conflicts. 
 
 In this version, you will need the following sensors:
-1. Garmin LIDAR Lite v4 - This requires separate 5v power. https://www.adafruit.com/product/4441
+1. Garmin LIDAR Lite v4 - This requires separate 5v power with 3v logic. https://www.adafruit.com/product/4441 You can use the Adafruit QT 3V to 5V Level Booster Breakout - STEMMA QT / Qwiic (https://www.adafruit.com/product/5649) which will kindly reduce having to solder the power separately to the sensor!
 2. Adafruit LTR390 - Ultra Violet light sensor https://www.adafruit.com/product/4831
 
 MAKE SURE you create appropriate directories on your PyPortal - bmp files go in "images", bdf files in "fonts", and wav files in "sounds"
