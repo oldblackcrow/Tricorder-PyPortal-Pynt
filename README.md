@@ -1,9 +1,10 @@
-# Tricorder PyPortal Pynt No Adafruit IO No GPS
-AdafruitIO is no longer required and added new sensors.
-GPS removed due to conflicts. 
+# Tricorder PyPortal Pynt
 
 In this version, you will need the following sensors:
 1. Garmin LIDAR Lite v4 - This requires separate 5v power with 3v logic. https://www.adafruit.com/product/4441 You can use the Adafruit QT 3V to 5V Level Booster Breakout - STEMMA QT / Qwiic (https://www.adafruit.com/product/5649) which will kindly reduce having to solder the power separately to the sensor!
+
+VITALLY IMPORTANT You MUST use the Garmin LIDAR Lite V4 library in this library file. There are two adafruit_lidarlite files... a .py and a .mpy. DELETE the adafruit_lidarlite.MPY! If you use the on included in CircuitPython, I believe every version, it simply won't work. I don't know why. This version was custom modified by @dastels on Adafruit back in 2021ish. Here's the report ticket on GitHub and please note the latest post by @Danh. adafruit/Adafruit_CircuitPython_LIDARLite#14 | If you are a programmer and want to contribute to convert the adafruit_lidarlite.py to adafruit_lidarlite.mpy, so it can ship with future versions. Your contributions are deeply appreciated!
+
 2. Adafruit LTR390 - Ultra Violet light sensor https://www.adafruit.com/product/4831
 
 MAKE SURE you create appropriate directories on your PyPortal - bmp files go in "images", bdf files in "fonts", and wav files in "sounds"
