@@ -272,8 +272,6 @@ while True:
     touch = ts.touch_point
 
     # --- Always update your sensors ---
-    # (UV & LIDAR only—GPS is gone)
-    # View 1 has no data now, View 2 & 3 do:
 
     if view_live == 2:
         sensor_data2.text = 'OBJ DISTANCE\n\n                   {}m'.format(sensor.distance//100)
